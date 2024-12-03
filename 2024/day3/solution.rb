@@ -62,17 +62,15 @@ class Solution
 ########## PART 1
 
   def solve_part_one
-    result = 0
     @input = @input.join unless @input.kind_of?(String)
 
-    @input.scan(/mul\(\d+\,\d+\)/).each do | word |
-      word.delete_prefix!("mul(")
-      word.delete_suffix!(")")
-      numbers = word.split(",")
+    find_mul_instruct(@input)
+  end
 
-      result += numbers[0].to_i * numbers[1].to_i
+  def find_mul_instruct(corrupted_memory)
+    corrupted_memory.scan(/mul\((\d+),(\d+)\)/).sum do | num1, num2 |
+      num1.to_i * num2.to_i
     end
-    result
   end
 
 ########## PART 2
@@ -81,14 +79,13 @@ class Solution
     result = 0
     @input = @input.join unless @input.kind_of?(String)
 
-    memory = @input.dup
-    until memory.empty?
-      @input = memory[0...(memory.index("don't()"))]
-      result += solve_part_one
+    until @input.empty?
+      segment = @input[0...(@input.index("don't()"))]
+      result += find_mul_instruct(segment)
 
-      memory = memory[(memory.index("don't()"))..]
-      memory = if memory.include?("don't()") && memory.include?("do()")
-                 memory[(memory.index("do()"))..]
+      @input = @input[(@input.index("don't()"))..]
+      @input = if @input.include?("don't()") && @input.include?("do()")
+                 @input[(@input.index("do()"))..]
                else
                  ""
                end
