@@ -1,4 +1,4 @@
-# --- Day 2: Red-Nosed Reports ---
+# --- Day 3: Mull It Over ---
 
 require "optparse"
 require "pry"
@@ -63,28 +63,38 @@ class Solution
 
   def solve_part_one
     result = 0
+    @input = @input.join unless @input.kind_of?(String)
 
-    @input.each do |line|
-      words = line.scan(/mul\(\d+\,\d+\)/)
+    @input.scan(/mul\(\d+\,\d+\)/).each do | word |
+      word.delete_prefix!("mul(")
+      word.delete_suffix!(")")
+      numbers = word.split(",")
 
-      words.each do | word |
-        word.delete_prefix!("mul(")
-        word.delete_suffix!(")")
-        numbers = word.split(",")
-
-        result += numbers[0].to_i * numbers[1].to_i
-      end
+      result += numbers[0].to_i * numbers[1].to_i
     end
-
     result
   end
 
 ########## PART 2
 
   def solve_part_two
+    result = 0
+    @input = @input.join unless @input.kind_of?(String)
 
+    memory = @input.dup
+    until memory.empty?
+      @input = memory[0...(memory.index("don't()"))]
+      result += solve_part_one
+
+      memory = memory[(memory.index("don't()"))..]
+      memory = if memory.include?("don't()") && memory.include?("do()")
+                 memory[(memory.index("do()"))..]
+               else
+                 ""
+               end
+    end
+    result
   end
-
 end
 
 Solution.process_args
