@@ -71,37 +71,56 @@ class Solution
     @input.flatten.tally["X"]
   end
 
-  def move(direction, x, y)
+  def start
+    begin
+      @input.each_with_index do |line, i|
+        if line.include?("<")
+          move(:right, line.index("<"), i)
+        elsif line.include?(">")
+          move(:left, line.index(">"), i)
+        elsif line.include?("^")
+          move(:up, line.index("^"), i)
+        elsif line.include?("v")
+          move(:down, line.index("v"), i)
+        end
+      end
+    rescue
+      return 1
+    end
+  end
+
+  def move(direction, x, y, depth = 0, max_depth = 7500)
+    raise "Recursion limit reached" if depth > max_depth
     @input[y][x] = "X"
 
     case direction
     when :up
       return unless on_map?(x, y-1)
       if @input[y-1][x] == "#"
-        move(:right, x, y)
+        move(:right, x, y, depth+1)
       else
-        move(direction, x, y-1)
+        move(direction, x, y-1, depth+1)
       end
     when :down
       return unless on_map?(x, y+1)
       if @input[y+1][x] == "#"
-        move(:left, x, y)
+        move(:left, x, y, depth+1)
       else
-        move(direction, x, y+1)
+        move(direction, x, y+1, depth+1)
       end
     when :right
       return unless on_map?(x+1, y)
       if @input[y][x+1] == "#"
-        move(:down, x, y)
+        move(:down, x, y, depth+1)
       else
-        move(direction, x+1, y)
+        move(direction, x+1, y, depth+1)
       end
     when :left
       return unless on_map?(x-1, y)
       if @input[y][x-1] == "#"
-        move(:up, x, y)
+        move(:up, x, y, depth+1)
       else
-        move(direction, x-1, y)
+        move(direction, x-1, y, depth+1)
       end
     end
   end
@@ -111,28 +130,32 @@ class Solution
     true
   end
 
-  def start
-    @input.each_with_index do |line, i|
-      if line.include?("<")
-        move(:right, line.index("<"), i)
-      elsif line.include?(">")
-        move(:left, line.index(">"), i)
-      elsif line.include?("^")
-        move(:up, line.index("^"), i)
-      elsif line.include?("v")
-        move(:down, line.index("v"), i)
-      end
-    end
-  end
-
 ########## PART 2
 
   def solve_part_two
     result = 0
+    inp1 = read_input_line_by_line(filename = "input.txt")
+    inp = inp1.map { |line| line.split("") }
 
+    path = @input.map do |row|
+      row.map.with_index do |char, i|
+        i if char == "X"
+      end
+    end
+
+    path.each_with_index do |row, i|
+      row.each_with_index do |char, j|
+        if char
+          inp = inp1.map { |line| line.split("") }
+          @input = inp
+          @input[i][j] = "#"
+
+          result += 1 if start == 1
+        end
+      end
+    end
     result
   end
-
 end
 
 Solution.process_args
