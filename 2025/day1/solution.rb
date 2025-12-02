@@ -62,16 +62,14 @@ class Solution
 ########## PART 1
 
   def solve_part_one
-    input = @input
-
-    input.map! do |dial|
+    @input.map! do |dial|
       dial.delete('R').sub('L', '-').to_i
     end
 
     password = 0
     pointer = 50
 
-    input.each do |dial|
+    @input.each do |dial|
       pointer = (pointer += dial) % 100
       pointer = 100 - pointer * (-1) if pointer < 0
       password += 1 if pointer == 0
@@ -83,6 +81,23 @@ class Solution
 ########## PART 2
 
   def solve_part_two
+    password = 0
+    pointer = 50
+
+    @input.each do |dial|
+      dial.abs.times do
+        pointer = dial.negative? ? (pointer - 1) : (pointer + 1)
+        if pointer == -1
+          pointer = 99
+        elsif pointer == 100
+          pointer = 0
+        end
+
+        password += 1 if pointer == 0
+      end
+    end
+
+    password
   end
 end
 
